@@ -10,6 +10,9 @@ gerrit:
   user: gerrit
   group: gerrit
   secondary_index: True
+  custom_log4j_config: true
+  custom_cacerts: true
+  java_options: []
   config:
     gerrit:
       canonicalWebUrl: http://localhost:8080/

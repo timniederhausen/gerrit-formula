@@ -34,3 +34,16 @@ that differ from whats in defaults.yaml
     default=default_settings.gerrit,
     merge=True)
 %}
+
+{% if settings.custom_log4j_config %}
+{% do settings.java_options.append(
+  '-Dlog4j.configuration=file://' + settings.base_directory + '/' + settings.site_directory + '/etc/log4j.properties'
+) %}
+{% endif %}
+
+{% if settings.custom_cacerts %}
+{% do settings.java_options.extend([
+  '-Djavax.net.ssl.trustStore=' + settings.base_directory + '/' + settings.site_directory + '/etc/cacerts',
+  '-Djavax.net.ssl.trustStorePassword=changeit',
+]) %}
+{% endif %}

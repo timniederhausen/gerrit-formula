@@ -96,6 +96,27 @@ secure_config:
     - defaults:
         secure: {{ settings.secure|json }}
 
+{% if settings.custom_log4j_config %}
+gerrit_log4j_config:
+  file.managed:
+    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc/log4j.properties
+    - source: salt://gerrit/files/log4j.properties
+    - template: jinja
+    - user: {{ settings.user }}
+    - group: {{ settings.group }}
+    - defaults:
+        settings: {{ settings | yaml() }}
+{% endif %}
+
+{% if settings.custom_cacerts %}
+gerrit_cacerts:
+  file.managed:
+    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc/cacerts
+    - source: salt://gerrit/files/cacerts
+    - user: {{ settings.user }}
+    - group: {{ settings.group }}
+{% endif %}
+
 {# On FreeBSD setting the site path is handled by the rc.d script,
    which allows us to skip writing to /etc
    (which shouldn't be used for installed applications). #}
