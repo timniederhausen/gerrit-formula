@@ -105,7 +105,7 @@ gerrit_log4j_config:
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - defaults:
-        settings: {{ settings | yaml() }}
+        directory: {{ directory | yaml_encode }}
 {% endif %}
 
 {% if settings.custom_cacerts %}
