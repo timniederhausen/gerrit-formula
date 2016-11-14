@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
 
-{% from "gerrit/map.jinja" import settings with context -%}
+{% from "gerrit/map.jinja" import settings, directory with context -%}
 {% set gerrit_war_file = "gerrit-" ~ settings.package.version ~ ".war" -%}
 
 install_jre:
@@ -22,14 +22,14 @@ gerrit_group:
 
 create_etc_dir:
   file.directory:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc
+    - name: {{ directory }}/etc
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - makedirs: true
 
 create_lib_dir:
   file.directory:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/lib
+    - name: {{ directory }}/lib
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - makedirs: true
@@ -37,7 +37,7 @@ create_lib_dir:
 {% for name, library in salt['pillar.get']('gerrit:libraries', {}).items() %}
 install_{{ name }}_lib:
   file.managed:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/lib/{{ name }}.jar
+    - name: {{ directory }}/lib/{{ name }}.jar
     - source: {{ library.source }}
 {% if library.source_hash is defined %}
     - source_hash: {{ library.source_hash }}
@@ -48,7 +48,7 @@ install_{{ name }}_lib:
 
 create_plugins_dir:
   file.directory:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/plugins
+    - name: {{ directory }}/plugins
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - makedirs: true
@@ -56,7 +56,7 @@ create_plugins_dir:
 {% for name, plugin in salt['pillar.get']('gerrit:plugins', {}).items() %}
 install_{{ name }}_plugin:
   file.managed:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/plugins/{{ name }}.jar
+    - name: {{ directory }}/plugins/{{ name }}.jar
     - source: {{ plugin.source }}
 {% if plugin.source_hash is defined %}
     - source_hash: {{ plugin.source_hash }}
@@ -75,7 +75,7 @@ gerrit_war:
 
 gerrit_config:
   file.managed:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc/gerrit.config
+    - name: {{ directory }}/etc/gerrit.config
     - source: salt://gerrit/files/gerrit.config
     - template: jinja
     - user: {{ settings.user }}
@@ -87,7 +87,7 @@ gerrit_config:
 
 secure_config:
   file.managed:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc/secure.config
+    - name: {{ directory }}/etc/secure.config
     - source: salt://gerrit/files/secure.config
     - template: jinja
     - user: {{ settings.user }}
@@ -99,7 +99,7 @@ secure_config:
 {% if settings.custom_log4j_config %}
 gerrit_log4j_config:
   file.managed:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc/log4j.properties
+    - name: {{ directory }}/etc/log4j.properties
     - source: salt://gerrit/files/log4j.properties
     - template: jinja
     - user: {{ settings.user }}
@@ -111,7 +111,7 @@ gerrit_log4j_config:
 {% if settings.custom_cacerts %}
 gerrit_cacerts:
   file.managed:
-    - name: {{ settings.base_directory }}/{{ settings.site_directory }}/etc/cacerts
+    - name: {{ directory }}/etc/cacerts
     - source: salt://gerrit/files/cacerts
     - user: {{ settings.user }}
     - group: {{ settings.group }}
@@ -123,7 +123,7 @@ gerrit_cacerts:
 {% if grains.os_family != 'FreeBSD' %}
 /etc/default/gerritcodereview:
   file.managed:
-    - contents: GERRIT_SITE={{ settings.base_directory }}/{{ settings.site_directory }}
+    - contents: GERRIT_SITE={{ directory }}
     - user: root
     - group: root
     - mode: 0755
@@ -134,20 +134,20 @@ gerrit_init:
     - name: |
 {%- if settings.core_plugins is not none %}
     {% for plugin in settings.core_plugins %}
-        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch --install-plugin {{ plugin }} -d {{ settings.base_directory }}/{{ settings.site_directory }}
+        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch --install-plugin {{ plugin }} -d {{ directory }}
     {%- endfor %}
 {%- else %}
-        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch -d {{ settings.base_directory }}/{{ settings.site_directory }}
+        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch -d {{ directory }}
 {%- endif %}
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - cwd: {{ settings.base_directory }}
-    - unless: test -d {{ settings.base_directory }}/{{ settings.site_directory }}/bin
+    - unless: test -d {{ directory }}/bin
 {% if settings.secondary_index %}
 secondary_index:
   cmd.wait:
     - name: |
-        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} reindex -d {{ settings.base_directory }}/{{ settings.site_directory }}
+        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} reindex -d {{ directory }}
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - cwd: {{ settings.base_directory }}
@@ -158,7 +158,7 @@ secondary_index:
 link_logs_to_var_log_gerrit:
   file.symlink:
     - name: /var/log/gerrit
-    - target: {{ settings.base_directory }}/{{ settings.site_directory }}/logs
+    - target: {{ directory }}/logs
 
 gerrit_init_script:
 {% if grains.os_family == 'FreeBSD' %}
@@ -169,12 +169,12 @@ gerrit_init_script:
     - mode: 755
     - defaults:
         service_name: {{ settings.service }}
-        directory: {{ settings.base_directory }}/{{ settings.site_directory }}
-        user: {{ settings.user }}
+        directory: {{ directory | yaml_encode }}
+        user: {{ settings.user | yaml_encode }}
 {% else %}
   file.symlink:
     - name: /etc/init.d/{{ settings.service }}
-    - target: {{ settings.base_directory }}/{{ settings.site_directory }}/bin/gerrit.sh
+    - target: {{ directory }}/bin/gerrit.sh
     - user: root
     - group: root
 {% endif %}
