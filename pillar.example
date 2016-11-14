@@ -80,3 +80,12 @@ gerrit:
     github-plugin:
       source: https://gerrit-ci.gerritforge.com/view/Plugins-stable-2.12/job/plugin-github-mvn-stable-2.12/3/artifact/github-plugin/target/github-plugin-2.12-SNAPSHOT.jar
       source_hash: md5=42ebd7a68c6e0a35e7885c69b28c503b
+  theme:
+    header:
+      source: salt://files/GerritSiteHeader.html
+    css:
+      source: salt://files/GerritSiteHeader.html
+    static:
+      # This will be copied to $SITE_DIR/static/logo.png
+      logo.png:
+        source: salt://files/GerritLogo.png

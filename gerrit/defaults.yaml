@@ -41,3 +41,5 @@ gerrit:
   config_custom_sections:
   core_plugins:
   service: gerrit-server
+  theme:
+    static: {}
