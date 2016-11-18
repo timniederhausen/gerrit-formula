@@ -139,14 +139,14 @@ gerrit_cacerts:
 
 gerrit_init:
   cmd.run:
-    - name: |
+    - name: >
+        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch
 {%- if settings.core_plugins is not none %}
-    {% for plugin in settings.core_plugins %}
-        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch --install-plugin {{ plugin }} -d {{ directory }}
+    {%- for plugin in settings.core_plugins %}
+        --install-plugin {{ plugin }}
     {%- endfor %}
-{%- else %}
-        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch -d {{ directory }}
 {%- endif %}
+        -d {{ directory }}
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - cwd: {{ settings.base_directory }}
