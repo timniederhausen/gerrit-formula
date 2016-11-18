@@ -150,18 +150,20 @@ gerrit_init:
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - cwd: {{ settings.base_directory }}
-    - unless: test -d {{ directory }}/bin
+    - onchanges:
+      - file: gerrit_war
 
 {% if settings.secondary_index %}
 secondary_index:
-  cmd.wait:
+  cmd.run:
     - name: |
-        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} reindex -d {{ directory }}
+        java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} reindex -d {{ directory }} &&
+        touch {{ directory }}/.initialindex.stamp
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - cwd: {{ settings.base_directory }}
-    - watch:
-      - cmd: gerrit_init
+    {# We only need to run this on the initial run. Online reindexing handles the rest. #}
+    - creates: {{ directory }}/.initialindex.stamp
 {% endif %}
 
 link_logs_to_var_log_gerrit:
