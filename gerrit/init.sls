@@ -1,3 +1,5 @@
+{%- from 'gerrit/install.sls' import gerrit_files -%}
+
 include:
   - gerrit.install
   - gerrit.service
@@ -6,5 +8,6 @@ extend:
   gerrit_service:
     service:
       - watch:
-        - file: gerrit_config
-        - file: secure_config
+        {%- for file in gerrit_files %}
+        - {{ file }}
+        {%- endfor %}

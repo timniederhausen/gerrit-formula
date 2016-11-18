@@ -4,6 +4,8 @@
 {% from "gerrit/map.jinja" import settings, directory with context -%}
 {% set gerrit_war_file = "gerrit-" ~ settings.package.version ~ ".war" -%}
 
+{%- set gerrit_files = [] -%}
+
 install_jre:
   pkg.installed:
     - name: {{ settings.jre }}
@@ -44,6 +46,7 @@ install_{{ name }}_lib:
 {% endif %}
     - user: {{ settings.user }}
     - group: {{ settings.group }}
+{% do gerrit_files.append('install_' + name + '_lib') %}
 {% endfor %}
 
 create_plugins_dir:
@@ -63,6 +66,7 @@ install_{{ name }}_plugin:
 {% endif %}
     - user: {{ settings.user }}
     - group: {{ settings.group }}
+{% do gerrit_files.append('install_' + name + '_plugin') %}
 {% endfor %}
 
 gerrit_war:
@@ -84,6 +88,7 @@ gerrit_config:
     - defaults:
         settings: {{ settings|json }}
         war_file: {{ gerrit_war_file }}
+{% do gerrit_files.append('gerrit_config') %}
 
 secure_config:
   file.managed:
@@ -95,6 +100,7 @@ secure_config:
     - makedirs: true
     - defaults:
         secure: {{ settings.secure|json }}
+{% do gerrit_files.append('secure_config') %}
 
 {% if settings.custom_log4j_config %}
 gerrit_log4j_config:
@@ -106,6 +112,7 @@ gerrit_log4j_config:
     - group: {{ settings.group }}
     - defaults:
         directory: {{ directory | yaml_encode }}
+{% do gerrit_files.append('gerrit_log4j_config') %}
 {% endif %}
 
 {% if settings.custom_cacerts %}
@@ -115,6 +122,7 @@ gerrit_cacerts:
     - source: salt://gerrit/files/cacerts
     - user: {{ settings.user }}
     - group: {{ settings.group }}
+{% do gerrit_files.append('gerrit_cacerts') %}
 {% endif %}
 
 {# On FreeBSD setting the site path is handled by the rc.d script,
@@ -143,6 +151,7 @@ gerrit_init:
     - group: {{ settings.group }}
     - cwd: {{ settings.base_directory }}
     - unless: test -d {{ directory }}/bin
+
 {% if settings.secondary_index %}
 secondary_index:
   cmd.wait:
@@ -178,3 +187,4 @@ gerrit_init_script:
     - user: root
     - group: root
 {% endif %}
+{% do gerrit_files.append('gerrit_init_script') %}
