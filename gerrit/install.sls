@@ -139,7 +139,7 @@ gerrit_cacerts:
 
 gerrit_init:
   cmd.run:
-    - name: >
+    - name: >-
         java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} init --batch
 {%- if settings.core_plugins is not none %}
     {%- for plugin in settings.core_plugins %}
