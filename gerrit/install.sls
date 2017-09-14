@@ -93,14 +93,27 @@ gerrit_config:
 secure_config:
   file.managed:
     - name: {{ directory }}/etc/secure.config
-    - source: salt://gerrit/files/secure.config
+    - source: salt://gerrit/files/generic.config
     - template: jinja
     - user: {{ settings.user }}
     - group: {{ settings.group }}
     - makedirs: true
     - defaults:
-        secure: {{ settings.secure|json }}
+        config: {{ settings.secure|json }}
 {% do gerrit_files.append('secure_config') %}
+
+{% for name, config in settings.custom_config_files.items() %}
+{{ name }}_config:
+  file.managed:
+    - name: {{ directory }}/etc/{{ name }}.config
+    - source: salt://gerrit/files/generic.config
+    - template: jinja
+    - user: {{ settings.user }}
+    - group: {{ settings.group }}
+    - makedirs: true
+    - defaults:
+        config: {{ config|json }}
+{% endfor %}
 
 {% if settings.custom_log4j_config %}
 gerrit_log4j_config:
