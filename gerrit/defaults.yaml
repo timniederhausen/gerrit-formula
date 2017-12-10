@@ -4,12 +4,12 @@
 gerrit:
   base_directory: /opt/gerrit
   site_directory: review
-  package:
-    version: 2.13.2
-    base_url: https://gerrit-releases.storage.googleapis.com
+  war_file:
+    source: https://gerrit-releases.storage.googleapis.com/gerrit-2.13.2.war
+    skip_verify: false
   user: gerrit
   group: gerrit
-  secondary_index: True
+  secondary_index: true
   custom_log4j_config: true
   custom_cacerts: true
   java_options: []

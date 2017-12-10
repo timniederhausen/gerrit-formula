@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
 
-{% from "gerrit/map.jinja" import settings, directory with context -%}
-{% set gerrit_war_file = "gerrit-" ~ settings.package.version ~ ".war" -%}
+{% from "gerrit/map.jinja" import settings, directory, sls_block with context -%}
+{% set gerrit_war_file = "gerrit.war" -%}
 
 {%- set gerrit_files = [] -%}
 
@@ -73,9 +73,8 @@ gerrit_war:
   file.managed:
     - name: {{ settings.base_directory }}/{{ gerrit_war_file }}
     - user: {{ settings.user }}
-    - group: {{ settings.group }}
-    - source: {{ settings.package.base_url }}/{{ gerrit_war_file }}
-    - skip_verify: true
+    - group: {{ settings.group }
+    {{ sls_block(settings.war_file) | indent(4) }}
 
 gerrit_config:
   file.managed:
