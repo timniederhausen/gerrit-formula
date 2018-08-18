@@ -159,8 +159,7 @@ gerrit_init:
     {%- endfor %}
 {%- endif %}
         -d {{ directory }}
-    - user: {{ settings.user }}
-    - group: {{ settings.group }}
+    - runas: {{ settings.user }}
     - cwd: {{ settings.base_directory }}
     - onchanges:
       - file: gerrit_war
@@ -171,8 +170,7 @@ secondary_index:
     - name: |
         java -jar {{ settings.base_directory }}/{{ gerrit_war_file }} reindex -d {{ directory }} &&
         touch {{ directory }}/.initialindex.stamp
-    - user: {{ settings.user }}
-    - group: {{ settings.group }}
+    - runas: {{ settings.user }}
     - cwd: {{ settings.base_directory }}
     {# We only need to run this on the initial run. Online reindexing handles the rest. #}
     - creates: {{ directory }}/.initialindex.stamp
