@@ -39,7 +39,7 @@ gerrit:
   secure:
     auth:
   config_custom_sections:
-  custom_config_files:
+  custom_config_files: {}
   core_plugins:
   service: gerrit-server
   theme:

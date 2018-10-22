@@ -73,7 +73,7 @@ gerrit_war:
   file.managed:
     - name: {{ settings.base_directory }}/{{ gerrit_war_file }}
     - user: {{ settings.user }}
-    - group: {{ settings.group }
+    - group: {{ settings.group }}
     {{ sls_block(settings.war_file) | indent(4) }}
 
 gerrit_config:
