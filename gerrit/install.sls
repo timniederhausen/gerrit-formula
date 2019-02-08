@@ -137,6 +137,18 @@ gerrit_cacerts:
 {% do gerrit_files.append('gerrit_cacerts') %}
 {% endif %}
 
+{% if 'hooks_repo_url' in settings %}
+gerrit_hooks:
+  git.latest:
+    - name: {{ settings.hooks_repo_url }}
+    - target: {{ directory }}/hooks
+    - user: {{ settings.user }}
+    - rev: master
+    - branch: master
+    - force_reset: true
+    - force_fetch: true
+{% endif %}
+
 {# On FreeBSD setting the site path is handled by the rc.d script,
    which allows us to skip writing to /etc
    (which shouldn't be used for installed applications). #}
